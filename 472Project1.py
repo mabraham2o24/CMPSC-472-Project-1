@@ -3,117 +3,155 @@ import multiprocessing
 import timeit
 import os
 
-# Class to represent a process
-class Process:
-    def __init__(self, pid):
-        self.pid = pid
-        self.threads = []  # List to hold threads associated with the process
 
-# Class to represent a thread
+# Class to represent a Thread
 class Thread:
     def __init__(self, tid):
+        # Initialize a thread with an ID and default status 'Running'
         self.tid = tid
-        self.status = "Running"  # Initial status is Running
+        self.status = "Running"  
 
-# Class to manage processes and threads
+
+# Class to represent a Process
+class Process:
+    def __init__(self, pid):
+        # Initialize a process with a Process ID (PID) and an empty list to store threads
+        self.pid = pid
+        self.threads = []  
+
+
+# Class to manage Processes and Threads
 class ProcessManager:
     def __init__(self):
-        self.processes = []  # List to hold processes
+        # Initialize the Process Manager with an empty list to store processes
+        self.processes = []  
 
-    # Create a new process with a given ID
+    # Create a new process with given PID
     def create_process(self, pid):
-        new_process = Process(pid)
-        self.processes.append(new_process)
+        new_process = Process(pid)  # Create a new Process object
+        self.processes.append(new_process)  # Add the process to the list
         print(f"Process {pid} created.")
 
-    # Terminate a process with a given ID
-    def terminate_process(self, pid):
-        for process in self.processes:
-            if process.pid == pid:
-                self.processes.remove(process)
-                print(f"Process {pid} terminated.")
-                return
-        print(f"Process {pid} not found.")
-
-    # Display detailed information about processes and associated threads
-    def display_processes(self):
-        print("Processes:")
-        for process in self.processes:
-            print(f"Process ID: {process.pid}")
-            for thread in process.threads:
-                print(f"  Thread ID: {thread.tid}, Status: {thread.status}")
-            print("")
-
-    # Create a new thread within a process
+    # Create a new thread within a process with given PID and TID
     def create_thread(self, pid, tid):
+        # Find the process with the given PID
         for process in self.processes:
             if process.pid == pid:
-                new_thread = Thread(tid)
-                process.threads.append(new_thread)
+                new_thread = Thread(tid)  # Create a new Thread object
+                process.threads.append(new_thread)  # Add the thread to the process
                 print(f"Thread {tid} created for Process {pid}.")
                 return
         print(f"Process {pid} not found.")
 
-    # Terminate a thread within a process
-    def terminate_thread(self, pid, tid):
+    # Display information about processes and threads
+    def display_processes(self):
+        print("\n=== Process and Thread Manager ===")
+        # Iterate through each process and its associated threads
+        for process in self.processes:
+            print(f"Process ID: {process.pid}")
+            print("Threads:")
+            for thread in process.threads:
+                print(f" - Thread ID: {thread.tid}, Status: {thread.status}")
+            print()
+
+    # Kill a process with given PID
+    def kill_process(self, pid):
+        for process in self.processes:
+            if process.pid == pid:
+                self.processes.remove(process)  # Remove the process from the list
+                print(f"Process {pid} killed.")
+                return
+        print(f"Process {pid} not found.")
+
+    # Kill a thread within a process with given PID and TID
+    def kill_thread(self, pid, tid):
         for process in self.processes:
             if process.pid == pid:
                 for thread in process.threads:
                     if thread.tid == tid:
-                        process.threads.remove(thread)
-                        print(f"Thread {tid} terminated for Process {pid}.")
+                        process.threads.remove(thread)  # Remove the thread from the process
+                        print(f"Thread {tid} killed for Process {pid}.")
                         return
                 print(f"Thread {tid} not found for Process {pid}.")
                 return
         print(f"Process {pid} not found.")
 
-    # Kill a process
-    def kill_process(self, pid):
-        # Call the terminate_process method to remove the process with the given ID
-        self.terminate_process(pid)
-        # Print a message indicating that the process has been killed
-        print(f"Process {pid} killed.")
-
-    # Kill a thread within a process
-    def kill_thread(self, pid, tid):
-        # Call the terminate_thread method to remove the thread with the given ID from the process
-        self.terminate_thread(pid, tid)
-        # Print a message indicating that the thread has been killed for the specified process
-        print(f"Thread {tid} killed for Process {pid}.")
-
-    # Suspend a thread within a process
+    # Suspend a thread within a process with given PID and TID
     def suspend_thread(self, pid, tid):
-        # Iterate through the list of processes to find the one with the matching ID
         for process in self.processes:
-            # Check if the current process matches the given process ID
             if process.pid == pid:
-                # Iterate through the threads associated with the current process
                 for thread in process.threads:
-                    # Check if the current thread matches the given thread ID
                     if thread.tid == tid:
-                        # Set the status of the thread to "Suspended"
-                        thread.status = "Suspended"
-                        # Print a message indicating that the thread has been suspended for the process
+                        thread.status = "Suspended"  # Update the thread status
                         print(f"Thread {tid} suspended for Process {pid}.")
                         return
-                # Print a message if the thread ID is not found for the specified process
                 print(f"Thread {tid} not found for Process {pid}.")
                 return
-        # Print a message if the process ID is not found
         print(f"Process {pid} not found.")
 
-    # Resume a suspended thread within a process
+    # Resume a suspended thread within a process with given PID and TID
     def resume_thread(self, pid, tid):
         for process in self.processes:
             if process.pid == pid:
                 for thread in process.threads:
                     if thread.tid == tid:
-                        thread.status = "Running"
+                        thread.status = "Running"  # Update the thread status
                         print(f"Thread {tid} resumed for Process {pid}.")
                         return
                 print(f"Thread {tid} not found for Process {pid}.")
                 return
         print(f"Process {pid} not found.")
+
+
+# Function to test the Multi-Process and Thread Manager feature
+def test_multi_process_and_thread_manager():
+    manager = ProcessManager()
+
+    while True:
+        # Display the menu options
+        print("\n=== Multi-Process and Thread Manager ===")
+        print("1. Create a Process")
+        print("2. Create a Thread")
+        print("3. Display Processes and Threads")
+        print("4. Kill a Process")
+        print("5. Kill a Thread")
+        print("6. Suspend a Thread")
+        print("7. Resume a Thread")
+        print("8. Exit")
+
+        # Get user input for the selected option
+        choice = input("Select an option: ")
+
+        # Perform actions based on user choice
+        if choice == '1':
+            pid = input("Enter Process ID: ")
+            manager.create_process(pid)
+        elif choice == '2':
+            pid = input("Enter Process ID: ")
+            tid = input("Enter Thread ID: ")
+            manager.create_thread(pid, tid)
+        elif choice == '3':
+            manager.display_processes()
+        elif choice == '4':
+            pid = input("Enter Process ID to kill: ")
+            manager.kill_process(pid)
+        elif choice == '5':
+            pid = input("Enter Process ID: ")
+            tid = input("Enter Thread ID to kill: ")
+            manager.kill_thread(pid, tid)
+        elif choice == '6':
+            pid = input("Enter Process ID: ")
+            tid = input("Enter Thread ID to suspend: ")
+            manager.suspend_thread(pid, tid)
+        elif choice == '7':
+            pid = input("Enter Process ID: ")
+            tid = input("Enter Thread ID to resume: ")
+            manager.resume_thread(pid, tid)
+        elif choice == '8':
+            print("Exiting the Multi-Process and Thread Manager...")
+            break
+        else:
+            print("Invalid choice. Please select a valid option.")
 
 # Class to manage inter-process communication
 class IPCManager:
@@ -240,11 +278,7 @@ def main():
 
         # Perform actions based on user choice
         if choice == '1':
-            print("\n=== Testing Multi-Process and Thread Manager ===")
-            manager = ProcessManager()
-            manager.create_process(1)
-            manager.create_thread(1, 1)
-            manager.display_processes()
+          test_multi_process_and_thread_manager()
         elif choice == '2':
             print("\n=== Testing Inter-Process Communication (IPC) ===")
             test_ipc()
